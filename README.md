@@ -1,9 +1,8 @@
-# IT-Security-Scripts-Incident-Response
+# IT-Security-Scripts and Queries-Incident-Response
 
-# Repository for Scripts and Incident Response JF Petro Group
+# Repository for Scripts/Queries and Incident Response JF Petro Group
 
+Crowdstrike Falcon
 
-#Crowdstrike Falcon
-
-#Microsoft 365 Security and Compliance Defender
+Microsoft 365 Security and Compliance Defender
 
