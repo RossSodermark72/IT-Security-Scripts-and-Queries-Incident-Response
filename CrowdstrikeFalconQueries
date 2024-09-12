@@ -1,10 +1,10 @@
-# Crowdstrike Falcon Script Recon
+# Crowdstrike Falcon Advanced Event Queries
 
 ----------------------
 | Networking and DNS |
 ----------------------
 
-#Script looks up suspicious DNS Qurey Attempt:
+#looks up suspicious DNS Qurey Attempt:
 netconn_dns:nslookup* OR netconn_dns:whois* OR netconn_dns:hostname*
 
 # Checks for Network Traffic that Contains Malicious KeyWords
@@ -14,7 +14,7 @@ netconn_dns:nslookup* OR netconn_dns:whois* OR netconn_dns:hostname*
 | System Configurations and Account Recon |
 -------------------------------------------
 
-# Script that looks for attempts to obtain system configuration information:
+# that looks for attempts to obtain system configuration information:
 (event_simpleName:ProcessCreate AND process_name:systeminfo.exe) OR (event_simpleName:ProcessCreate AND process_name:reg.exe AND command_line:query\ HKEY_LOCAL_MACHINE\ SYSTEM\ CurrentControlSet\ Services\ Tcpip\ Parameters)
 
 # Identify to obtain account information
