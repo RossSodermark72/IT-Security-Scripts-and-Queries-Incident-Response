@@ -10,6 +10,19 @@ netconn_dns:nslookup* OR netconn_dns:whois* OR netconn_dns:hostname*
 # Checks for Network Traffic that Contains Malicious KeyWords
 (event_simpleName:ProcessCreate AND process_name:ipconfig.exe) OR (event_simpleName:ProcessCreate AND process_name:netstat.exe)
 
+-------------------------------------------
+| System Configurations and Account Recon |
+-------------------------------------------
+
+# Script that looks for attempts to obtain system configuration information:
+(event_simpleName:ProcessCreate AND process_name:systeminfo.exe) OR (event_simpleName:ProcessCreate AND process_name:reg.exe AND command_line:query\ HKEY_LOCAL_MACHINE\ SYSTEM\ CurrentControlSet\ Services\ Tcpip\ Parameters)
+
+# Identify to obtain account information
+(event_simpleName:ProcessCreate AND process_name:net.exe) OR (event_simpleName:ProcessCreate AND process_name:dsquery.exe)
+
+# Idenity attempt to enumerate the running processes: 
+(event_simpleName:ProcessCreate AND process_name:net.exe) OR (event_simpleName:ProcessCreate AND process_name:dsquery.exe)
+
 
 
 
