@@ -1,1 +1,50 @@
 # Quries for 365 Defender to aid in Email Security and to search events
+
+# File Hash Lookup (in let file hash function.. copy and paste the hash into the quotation marks): 
+
+let fileHash = "BD7DE76755B8C40E1B54329F3501F5684B142025E2908A3F24B61175FF2DBE69";
+find in (DeviceFileEvents, DeviceProcessEvents, DeviceEvents, DeviceRegistryEvents, DeviceNetworkEvents, DeviceImageLoadEvents)
+where SHA1 == fileHash or InitiatingProcessSHA1 == fileHash
+project DeviceName, ActionType, FileName, InitiatingProcessFileName, Timestamp, SHA1, InitiatingProcessSHA1
+| project DeviceName, ActionType, Timestamp, 
+          FileName = iff(SHA1 == fileHash, FileName, InitiatingProcessFileName),
+          MatchedSide=iff(SHA1 == fileHash, iff(InitiatingProcessSHA1 == fileHash, "Both", "Child"), "Parent")
+| summarize makeset(ActionType), FirstTimestamp=min(Timestamp), (LastTimestamp, LastActionType)=arg_max(Timestamp, ActionType) by FileName, MatchedSide, DeviceName
+| top 1000 by LastTimestamp desc
+| sort by DeviceName, LastTimestamp desc
+
+
+# Email Redirect Search (Searches for emails that have redirect links within email):
+
+EmailUrlInfo
+| where Url matches regex @"s?\:\/\/(?:www\.)?t\.(?:[\w\-\.]+\/+)+(?:r|redirect)\/?\?"
+
+
+# Phish detections by method (Searches for the phish detections and what method was used to detect the phish, also giving a list of emails that contained some sort of phish):
+
+EmailEvents
+| where Timestamp > ago(7d)
+| where isnotempty(DetectionMethods)
+| extend MDO_detection = parse_json(DetectionMethods)
+| where MDO_detection.Phish in 
+        (
+          @'["URL malicious reputation"]',
+          @'["URL detonation reputation"]',
+          @'["URL detonation"]',
+          @'["Advanced filter"]',
+          @'["General filter"]',
+          @'["Spoof intra-org"]',
+          @'["Spoof external domain"]',
+          @'["Spoof DMARC"]',
+          @'["Impersonation brand"]',
+          @'["Mixed analysis detection"]',
+          @'["File reputation"]',
+          @'["File detonation reputation"]',
+          @'["File detonation"]',
+          @'["Fingerprint matching"]'
+        )
+| extend SenderFromAddress_IPv4 = strcat(SenderFromAddress, ", ", SenderIPv4)
+| project Timestamp, NetworkMessageId, Subject, SenderFromAddress_IPv4, RecipientEmailAddress, DeliveryLocation, MDO_detection.Phish
+
+
+
