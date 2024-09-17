@@ -20,7 +20,8 @@ EmailUrlInfo
 | where Url matches regex @"s?\:\/\/(?:www\.)?t\.(?:[\w\-\.]+\/+)+(?:r|redirect)\/?\?"
 
 
-# Phish detections by method (Searches for the phish detections and what method was used to detect the phish, also giving a list of emails that contained some sort of phish):
+# Phish detections by method (Searches for the phish detections and what method was used to detect the phish, also giving a list of emails that contained some sort of phish
+Instructions: default set up to run query in advanced hunt is set to 7 days, you can update the time stamp before running query by setting it set in query. You can add any value to search for data etc. 1d would search for data from the past day.):
 
 EmailEvents
 | where Timestamp > ago(7d)
