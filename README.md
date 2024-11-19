@@ -2,7 +2,7 @@
 
 # Repository for Scripts/Queries and Incident Response JF Petro Group
 
-Crowdstrike Falcon
+Crowdstrike Falcon (Advanced Event Search + Real Time Response Scripts)
 
-Microsoft 365 Security and Compliance Defender
+Microsoft 365 Security and Compliance Defender (Advanced Hunting) 
 
