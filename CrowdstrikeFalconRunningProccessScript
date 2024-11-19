@@ -1,0 +1,73 @@
+# Crowdstrike Falcon Scripts
+
+# Scripts to be used in real time response while connected to endpoint
+
+# The Running Process Script: 
+  function Convert-Hashtable([Parameter(Mandatory=$true)][psobject]$Object){
+  [hashtable]$i=@{}
+  $Object.PSObject.Properties|?{![string]::IsNullOrEmpty($_.Value)}|%{
+    $i[($_.Name -replace '\s','_' -replace '\W',$null)]=$_.Value
+  }
+  $i
+}
+function Convert-Json([Parameter(Mandatory=$true)][string]$String){
+  if($PSVersionTable.PSVersion.ToString() -lt 3.0){
+    $Serializer.DeserializeObject($String)
+  }else{
+    $Object=$String|ConvertFrom-Json
+    if($Object){Convert-Hashtable $Object}
+  }
+}
+function Format-Result([Parameter(Mandatory=$true)][hashtable[]]$Hashtable,[string]$String){
+  [void]([Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine',$env:ComputerName)|%{
+    try{
+      $_.OpenSubKey('SYSTEM\\CurrentControlSet\\Services\\CSAgent\\Sim')|%{
+        foreach($i in @('AG','CU')){
+          nv -Name $i -Value ([System.BitConverter]::ToString($_.GetValue($i))).Replace('-',$null).ToLower()
+        }
+      }
+    }catch{}
+  })
+  [hashtable]@{script=$String;cid=$CU;aid=$AG;result=$Hashtable}
+}
+function Write-Json([Parameter(Mandatory=$true)][hashtable]$Hashtable){
+  if($PSVersionTable.PSVersion.ToString() -lt 3.0){
+    $Serializer.Serialize($Hashtable)
+  }else{
+    ConvertTo-Json $Hashtable -Depth 8 -Compress
+  }
+}
+function Get-ProcessList([int]$Id,[string]$Match){
+  [string[]]$Select='ProcessName','ProcessId','ParentProcessId','WS','HandleCount','Path','CommandLine'
+  [hashtable[]]$Output=if($Id){
+    gwmi -Query "SELECT * FROM Win32_Process WHERE ProcessId LIKE '$Id'"|select $Select|%{
+      $_|Add-Member -Name Modules -Value ([string[]]((Get-Process -Id $_.ProcessId).Modules|
+        select -ExpandProperty FileName)) -MemberType NoteProperty
+      Convert-Hashtable $_
+  }
+  }elseif($Match){
+    gwmi -Class Win32_Process|?{$_.ProcessName -match $Match}|select $Select|%{Convert-Hashtable $_}
+  }else{
+    gwmi -Class Win32_Process|select $Select|%{Convert-Hashtable $_}
+  }
+  if($Output){
+    Write-Json (Format-Result $Output Process)
+  }elseif($Id){
+    throw "No result for '$Id'."
+  }elseif($Match){
+    throw "No result(s) for '$Match'."
+  }else{
+    throw "No result(s)."
+  }
+}
+try{
+  if($PSVersionTable.PSVersion.ToString() -lt 3.0){
+    Add-Type -AssemblyName System.Web.Extensions
+    $Serializer=New-Object System.Web.Script.Serialization.JavascriptSerializer
+  }
+  if($args[0]){$Param=Convert-Json $args[0]}
+  Get-ProcessList @Param
+}catch{
+  throw $_
+}
+
