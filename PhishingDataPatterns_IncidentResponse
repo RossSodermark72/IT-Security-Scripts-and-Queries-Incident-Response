@@ -1,14 +1,26 @@
 # This is documentation for Phishing Data Patterns to aid in response to SCAM and SPAM emails with details for what action is needed 
 
 # Threat Actor Countries found: 
+Nigeria, Laos, Italy, Brazil, Japan, Hong Kong, Mexico, U.K., Indonesia, Netherlands, India, Korea, 
 
 # Common Red Flags:
-
+- Third Party Compromised Accounts sending SCAM emails
+- Compromised Microsoft Tenants
+- One of the core three (DKIM, DMARC, or SPF) is either ignored, perm error, or failed
+- Brand Impersonation: Most common SCAM. SCAMs include: Sharepoint, OneDrive, Paypal, DocuSign, Venmo, Amazon, Norton, random fake business to attempt to trick users in thinking the email coresspondence is legit when it is not (often a backstory with these with a spoof with someon in our JF company). 
+- Fake Invoices
+- Suspicious PDFs
+- GrayMail
 
 # What to Check First:
+- Always check the header first, valuable information to determine if it is legit or not. (I have used Microsfot Header Analyzer). 
+- Look for email format. Sometimes phish emails have unecessary spaces or extra characters. 
+- Weird wording for a professional email. Often there are captial letters, and seems to hint at compelting a task "quickly." Ambigious wording. Examples include: "Greetings of the day," "URGENT", "THIS NEEDS TO BE COMPLETED NOW" 
 
 
 # Actions Required: 
+- When Phish is detected and determined to be phish, add sender to blocked list in Mimecast
+- If the Phsh is determined to be a SCAM, block the sender and perform threat remediation in either 365 Defender or Mimecast. (You have to use both sometimes when removing phish emails sent to an email group).
 
 
 # Monitor User Activity post Phish:
