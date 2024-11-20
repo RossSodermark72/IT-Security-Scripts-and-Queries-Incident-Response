@@ -1,1 +1,4 @@
-
+# Patterns and Procedure for Approaching Compromised Accounts
+  - Check the IPs of the user's recent logins and see if there is a pattern and if there are outliers.
+  - Anaylze IP, run a IP reputation check, determine if the connection or sign in is linked to a VPN and/or Proxy connection
+  
